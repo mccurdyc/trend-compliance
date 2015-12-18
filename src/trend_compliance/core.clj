@@ -7,9 +7,15 @@
 (defn windows?
   "check to see if the device is windows os"
   [item]
-    (when (re-matches #"(?i)windows*" (get item :platform))
-      {:windows-os true
-       :item item}))
+  (if (re-matches #"(?i)windows*" (get item :platform)) true false))
+    ;; (when (re-matches #"(?i)windows*" (get item :platform))))
+      ;; {:windows-os true
+      ;;  :item item}))
+
+(defn create-windows-list
+  "create a list of windows machines with corresponding attributes"
+  [windows-map]
+  (filter windows? windows-map))
 
 (defn create-data-map
   "parse the list of lists returned from read-csv"
@@ -45,4 +51,6 @@
     (let [file-name (read-line)
           csv-data (read-csv file-name)
           data-map (map create-data-map csv-data)]
-          (map windows? data-map)))
+          ;; windows-map (map windows? data-map)
+          ;; win-list '()]
+          (create-windows-list data-map)))
