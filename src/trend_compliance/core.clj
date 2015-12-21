@@ -1,7 +1,8 @@
 (ns trend-compliance.core
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [clojure.pprint :as pp])
   (:gen-class))
 
 (defn trend-installed?
@@ -27,24 +28,26 @@
   (filter trend-installed? ping-successful-list)))
 
 (defn create-data-map
-  "parse the list of lists returned from read-csv"
+  "parse the list of lists returned from read-csv
+  If you want more data returned un-comment the fields below"
   [item]
   (let [[ip cp-name domain mac-ad off-scan-status ping prod-name platform os-server version patt-file scan-eng prev-pol cp-des rem-install] item]
     {:ip ip
-     :cp-name cp-name
-     :domain domain
-     :mac-ad mac-ad
+     ;; :cp-name cp-name
+     ;; :domain domain
+     ;; :mac-ad mac-ad
      :off-scan-status off-scan-status
      :ping ping
-     :prod-name prod-name
+     ;; :prod-name prod-name
      :platform platform
-     :os-server os-server
-     :version version
-     :patt-file patt-file
-     :scan-eng scan-eng
-     :prev-pol prev-pol
-     :cp-des cp-des
-     :rem-install rem-install}))
+     ;; :os-server os-server
+     ;; :version version
+     ;; :patt-file patt-file
+     ;; :scan-eng scan-eng
+     ;; :prev-pol prev-pol
+     ;; :cp-des cp-des
+     ;; :rem-install rem-install
+     }))
 
 (defn read-csv
   "read in a csv file"
@@ -56,8 +59,18 @@
 (defn -main
   "do some fun stuff with csv files"
   [& args]
-  (println "give me a file: ")
-    (let [file-name (read-line)
-          csv-data (read-csv file-name)
-          data-map (map create-data-map csv-data)]
-    (create-final-list data-map)))
+  (println "Files (<path/to/WIRED.csv> <path/to/WIRELSS.csv> <path/to/DETAIL>): ")
+    (let [in (read-line)
+          file-names (str/split in #" ")
+          wired (first file-names)
+          wireless (second file-names)
+          wired-csv-data (read-csv wired)
+          wireless-csv-data (read-csv wireless)
+          wired-data-map (map create-data-map wired-csv-data)
+          wireless-data-map (map create-data-map wireless-csv-data)
+          wired-list (create-final-list wired-data-map)
+          wireless-list (create-final-list wireless-data-map)]
+      (println "=============== Wired List: ===============")
+      (pp/pprint wired-list)
+      (println "\n=============== Wireless List: ===============")
+      (pp/pprint wireless-list)))
