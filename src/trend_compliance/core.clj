@@ -4,18 +4,27 @@
             [clojure.string :as str])
   (:gen-class))
 
+(defn trend-installed?
+  "check to see if the device has trend"
+  [item]
+  (if (re-matches #"(?i)not installed" (get item :off-scan-status)) true false))
+
+(defn ping-successful?
+  "check to see if the device ping was successful"
+  [item]
+  (if (re-matches #".*(?i)ping successful" (get item :ping)) true false))
+
 (defn windows?
   "check to see if the device is windows os"
   [item]
   (if (re-matches #"(?i)windows*" (get item :platform)) true false))
-    ;; (when (re-matches #"(?i)windows*" (get item :platform))))
-      ;; {:windows-os true
-      ;;  :item item}))
 
-(defn create-windows-list
-  "create a list of windows machines with corresponding attributes"
-  [windows-map]
-  (filter windows? windows-map))
+(defn create-final-list
+  "create a list of windows machines with successful ping"
+  [item]
+  (let [windows-machines (filter windows? item)
+        ping-successful-list (filter ping-successful? windows-machines)]
+  (filter trend-installed? ping-successful-list)))
 
 (defn create-data-map
   "parse the list of lists returned from read-csv"
@@ -51,6 +60,4 @@
     (let [file-name (read-line)
           csv-data (read-csv file-name)
           data-map (map create-data-map csv-data)]
-          ;; windows-map (map windows? data-map)
-          ;; win-list '()]
-          (create-windows-list data-map)))
+    (create-final-list data-map)))
