@@ -1,8 +1,8 @@
 (ns trend-compliance.core
-  (:require [clojure.data.csv :as csv]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [clojure.pprint :as pp])
+            [clojure.pprint :as pp]
+            [clojure-csv.core :as csv])
   (:gen-class))
 
 (defn trend-installed?
@@ -49,12 +49,55 @@
      ;; :rem-install rem-install
      }))
 
+(defn create-detail-map
+  "parse the detail file"
+  [item]
+  (let [[ip cp-name domain mac-ad off-scan-status ping prod-name platform os-server version patt-file scan-eng prev-pol cp-des rem-install] item]
+    {:ip ip
+     ;; :cp-name cp-name
+     ;; :domain domain
+     ;; :mac-ad mac-ad
+     :off-scan-status off-scan-status
+     :ping ping
+     ;; :prod-name prod-name
+     :platform platform
+     ;; :os-server os-server
+     ;; :version version
+     ;; :patt-file patt-file
+     ;; :scan-eng scan-eng
+     ;; :prev-pol prev-pol
+     ;; :cp-des cp-des
+     ;; :rem-install rem-install
+     }))
+
+(defn parse-line
+  "parse each line of a large file"
+  [line]
+  (str/split line #" = "))
+
+(def state (atom {}))
+
+(defn line-to-map
+  "take a line from detail and put into map using an atom"
+  [line]
+  (reset! state {})
+  (swap! state assoc
+    (keyword (re-find #"(?x)\S+" (str (first line))))
+    (re-find #"[^\\\"]\S+[^\\\"]" (str (second line)))))
+
+(defn read-detail
+  "read in a large detail file"
+  [file-name]
+  (with-open [rdr (io/reader file-name)]
+    (let [lines (doall (map parse-line (line-seq rdr)))]
+      (map line-to-map lines))))
+
 (defn read-csv
   "read in a csv file"
   [file-name]
   (with-open [in-file (io/reader file-name)]
-    (doall
-       (csv/read-csv in-file))))
+    (doall (csv/parse-csv in-file))))
+    ;; (doall (csv/parse-csv in-file :end-of-line "\n\n"))))
 
 (defn -main
   "do some fun stuff with csv files"
@@ -64,6 +107,7 @@
           file-names (str/split in #" ")
           wired (first file-names)
           wireless (second file-names)
+          detail (nth file-names 2)
           wired-csv-data (read-csv wired)
           wireless-csv-data (read-csv wireless)
           wired-data-map (map create-data-map wired-csv-data)
