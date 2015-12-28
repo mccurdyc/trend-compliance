@@ -65,16 +65,13 @@
     (swap! state assoc :date str-line)
     (swap! state assoc
       (keyword (re-find #"(?x)\S+" (str (first line))))
-      (if (= (str (second line)) (re-find #"\w{3} \d{2} \d{4} \d{2}:\d{2}:\d{2} EST" (str (second line))))
-        (str (second line))
-        (re-find #"[^\\\"]\S+[^\\\"]" (str (second line))))))))
+      (re-find #"[^\\\"]+" (str (second line)))))))
 
 (defn read-detail
   "read in a large detail file"
   [file-name]
   (with-open [rdr (io/reader file-name)]
-    (let [line (line-seq rdr)
-          split-lines (doall (map parse-line line))]
+    (let [split-lines (doall (map parse-line (line-seq rdr)))]
       ;; (println split-lines))))
       (map line-to-map split-lines))))
 
