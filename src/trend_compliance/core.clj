@@ -67,6 +67,10 @@
       (keyword (re-find #"(?x)\S+" (str (first line))))
       (re-find #"[^\\\"]+" (str (second line)))))))
 
+;; (defn compare-ip
+;;   "compare the ip held in log to the ips on compliance list"
+;;   [
+
 (defn read-detail
   "read in a large detail file"
   [file-name]
@@ -90,12 +94,8 @@
           wired (first file-names)
           wireless (second file-names)
           detail (nth file-names 2)
-          wired-csv-data (read-csv wired)
-          wireless-csv-data (read-csv wireless)
-          wired-data-map (map create-data-map wired-csv-data)
-          wireless-data-map (map create-data-map wireless-csv-data)
-          wired-list (create-final-list wired-data-map)
-          wireless-list (create-final-list wireless-data-map)]
+          wired-list (create-final-list (map create-data-map (read-csv wired)))
+          wireless-list (create-final-list (map create-data-map (read-csv wireless)))]
       (println "=============== Wired List: ===============")
       (pp/pprint wired-list)
       (println "\n=============== Wireless List: ===============")
