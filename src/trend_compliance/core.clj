@@ -33,34 +33,13 @@
   [item]
   (let [[ip cp-name domain mac-ad off-scan-status ping prod-name platform os-server version patt-file scan-eng prev-pol cp-des rem-install] item]
     {:ip ip
+     :off-scan-status off-scan-status
+     :ping ping
+     :platform platform
      ;; :cp-name cp-name
      ;; :domain domain
      ;; :mac-ad mac-ad
-     :off-scan-status off-scan-status
-     :ping ping
      ;; :prod-name prod-name
-     :platform platform
-     ;; :os-server os-server
-     ;; :version version
-     ;; :patt-file patt-file
-     ;; :scan-eng scan-eng
-     ;; :prev-pol prev-pol
-     ;; :cp-des cp-des
-     ;; :rem-install rem-install
-     }))
-
-(defn create-detail-map
-  "parse the detail file"
-  [item]
-  (let [[ip cp-name domain mac-ad off-scan-status ping prod-name platform os-server version patt-file scan-eng prev-pol cp-des rem-install] item]
-    {:ip ip
-     ;; :cp-name cp-name
-     ;; :domain domain
-     ;; :mac-ad mac-ad
-     :off-scan-status off-scan-status
-     :ping ping
-     ;; :prod-name prod-name
-     :platform platform
      ;; :os-server os-server
      ;; :version version
      ;; :patt-file patt-file
@@ -80,24 +59,30 @@
 (defn line-to-map
   "take a line from detail and put into map using an atom"
   [line]
-  (reset! state {})
-  (swap! state assoc
-    (keyword (re-find #"(?x)\S+" (str (first line))))
-    (re-find #"[^\\\"]\S+[^\\\"]" (str (second line)))))
+  (let [str-line (str (first line))]
+  ;; (reset! state {})
+  (if (= str-line (re-find #"\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" str-line))
+    (swap! state assoc :date str-line)
+    (swap! state assoc
+      (keyword (re-find #"(?x)\S+" (str (first line))))
+      (if (= (str (second line)) (re-find #"\w{3} \d{2} \d{4} \d{2}:\d{2}:\d{2} EST" (str (second line))))
+        (str (second line))
+        (re-find #"[^\\\"]\S+[^\\\"]" (str (second line))))))))
 
 (defn read-detail
   "read in a large detail file"
   [file-name]
   (with-open [rdr (io/reader file-name)]
-    (let [lines (doall (map parse-line (line-seq rdr)))]
-      (map line-to-map lines))))
+    (let [line (line-seq rdr)
+          split-lines (doall (map parse-line line))]
+      ;; (println split-lines))))
+      (map line-to-map split-lines))))
 
 (defn read-csv
   "read in a csv file"
   [file-name]
   (with-open [in-file (io/reader file-name)]
     (doall (csv/parse-csv in-file))))
-    ;; (doall (csv/parse-csv in-file :end-of-line "\n\n"))))
 
 (defn -main
   "do some fun stuff with csv files"
