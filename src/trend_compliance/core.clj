@@ -1,7 +1,7 @@
 (ns trend-compliance.core
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]
             [clojure.pprint :as pp]
+            [clojure.string :as str]
             [clojure-csv.core :as csv])
   (:gen-class))
 
@@ -37,11 +37,6 @@
      :ping ping
      :platform platform}))
 
-(defn parse-line
-  "parse each line of a large file"
-  [line]
-  (str/split line #" = "))
-
 (def state (atom {}))
 
 (defn line-to-map
@@ -57,7 +52,7 @@
 (defn compare-ip
   "compare the ip held in log to the ips on compliance list"
   [wireless-ip]
-  (if 
+  ;; (if 
   )
 
 (defn get-ip
@@ -65,13 +60,14 @@
   [item]
   (get item :ip))
 
-(defn read-detail
+(defn read-large-file
   "read in a large detail file"
   [file-name]
   (with-open [rdr (io/reader file-name)]
-    (let [split-lines (doall (map parse-line (line-seq rdr)))]
-      ;; (println split-lines))))
-      (map line-to-map split-lines))))
+    (doseq [line (line-seq rdr)]
+      (if (empty? line)
+        (println @state) ;; need to compare ip here
+        (line-to-map (str/split line #" = "))))))
 
 (defn read-csv
   "read in a csv file"
