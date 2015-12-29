@@ -5,6 +5,15 @@
             [clojure-csv.core :as csv])
   (:gen-class))
 
+(defn create-map
+  "parse the list of lists returned from read-csv"
+  [item]
+  (let [[ip cp-name domain mac-ad off-scan-status ping prod-name platform os-server version patt-file scan-eng prev-pol cp-des rem-install] item]
+    {:ip ip
+     :off-scan-status off-scan-status
+     :ping ping
+     :platform platform}))
+
 (defn trend-installed?
   "check to see if the device has trend"
   [item]
@@ -20,24 +29,12 @@
   [item]
   (if (re-matches #"(?i)windows*" (get item :platform)) true false))
 
-(defn create-final-list
+(defn uncompliant-map
   "create a list of windows machines with successful ping that fail compliance check"
   [item]
-  (let [windows-machines (filter windows? item)
-        ping-successful-list (filter ping-successful? windows-machines)]
-  (filter trend-installed? ping-successful-list)))
+  (filter (every-pred windows? ping-successful? trend-installed?) item))
 
-(defn create-data-map
-  "parse the list of lists returned from read-csv
-  If you want more data returned un-comment the fields below"
-  [item]
-  (let [[ip cp-name domain mac-ad off-scan-status ping prod-name platform os-server version patt-file scan-eng prev-pol cp-des rem-install] item]
-    {:ip ip
-     :off-scan-status off-scan-status
-     :ping ping
-     :platform platform}))
-
-(def state (atom {}))
+(def user-map (atom {}))
 
 (defn line-to-map
   "take a line from detail and put into map using an atom"
@@ -49,31 +46,30 @@
       (keyword (re-find #"(?x)\S+" (str (first line))))
       (re-find #"[^\\\"]+" (str (second line))))))
 
-(defn compare-ip
-  "compare the ip held in log to the ips on compliance list"
-  [wireless-ip]
-  ;; (if 
-  )
+;; (defn compare-ip
+;;   "compare the ip held in log to the ips on compliance list"
+;;   [ip-list]
+;;   (first (filter #(= % (get @state :Framed-IP-Address)) ip-list)))
 
-(defn get-ip
-  "get the ip from map"
-  [item]
-  (get item :ip))
+;; (defn get-ip
+;;   "get the ip from map"
+;;   [item]
+;;   (get item :ip))
 
 (defn read-large-file
   "read in a large detail file"
-  [file-name]
+  [file-name ip-list]
   (with-open [rdr (io/reader file-name)]
     (doseq [line (line-seq rdr)]
       (if (empty? line)
-        (println @state) ;; need to compare ip here
+        (compare-ip ip-list)
         (line-to-map (str/split line #" = "))))))
 
 (defn read-csv
   "read in a csv file"
   [file-name]
-  (with-open [in-file (io/reader file-name)]
-    (doall (csv/parse-csv in-file))))
+  (with-open [rdr (io/reader file-name)]
+    (doall (csv/parse-csv rdr))))
 
 (defn -main
   "do some fun stuff with csv files"
@@ -84,12 +80,13 @@
           wired (first file-names)
           wireless (second file-names)
           detail (nth file-names 2)
-          wired-list (create-final-list (map create-data-map (read-csv wired)))
-          wireless-list (create-final-list (map create-data-map (read-csv wireless)))
-          wired-ip-list (map get-ip wired-list)
-          compare-list (compare-ip wired-ip-list)]
-      (println wired-ip-list)
+          wired-ip-list (set (map get-ip (uncompliant-map (map create-map (read-csv wired)))))
+          wireless-ip-list (set (map get-ip (uncompliant-map (map create-map (read-csv wireless)))))]
+          ;; wireless-ip-list (map get-ip wireless-list)
+          ;; matching-ip (read-large-file detail wireless-ip-list)]
+      ;; (println matching-ip)))
+      ;; (println wireless-ip-list)))
       (println "=============== Wired List: ===============")
-      (pp/pprint compare-list)))
-      ;; (println "\n=============== Wireless List: ===============")
-      ;; (pp/pprint wireless-list)))
+      (println wired-ip-list)
+      (println "\n=============== Wireless List: ===============")
+      (println wireless-ip-list)))
