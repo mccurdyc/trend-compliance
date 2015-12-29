@@ -21,7 +21,7 @@
   (if (re-matches #"(?i)windows*" (get item :platform)) true false))
 
 (defn create-final-list
-  "create a list of windows machines with successful ping"
+  "create a list of windows machines with successful ping that fail compliance check"
   [item]
   (let [windows-machines (filter windows? item)
         ping-successful-list (filter ping-successful? windows-machines)]
@@ -35,19 +35,7 @@
     {:ip ip
      :off-scan-status off-scan-status
      :ping ping
-     :platform platform
-     ;; :cp-name cp-name
-     ;; :domain domain
-     ;; :mac-ad mac-ad
-     ;; :prod-name prod-name
-     ;; :os-server os-server
-     ;; :version version
-     ;; :patt-file patt-file
-     ;; :scan-eng scan-eng
-     ;; :prev-pol prev-pol
-     ;; :cp-des cp-des
-     ;; :rem-install rem-install
-     }))
+     :platform platform}))
 
 (defn parse-line
   "parse each line of a large file"
@@ -59,17 +47,23 @@
 (defn line-to-map
   "take a line from detail and put into map using an atom"
   [line]
-  (let [str-line (str (first line))]
   ;; (reset! state {})
-  (if (= str-line (re-find #"\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" str-line))
-    (swap! state assoc :date str-line)
+  (if (= (str (first line)) (re-find #"\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first line))))
+    (swap! state assoc :date (str (first line)))
     (swap! state assoc
       (keyword (re-find #"(?x)\S+" (str (first line))))
-      (re-find #"[^\\\"]+" (str (second line)))))))
+      (re-find #"[^\\\"]+" (str (second line))))))
 
-;; (defn compare-ip
-;;   "compare the ip held in log to the ips on compliance list"
-;;   [
+(defn compare-ip
+  "compare the ip held in log to the ips on compliance list"
+  [wireless-ip]
+  (if 
+  )
+
+(defn get-ip
+  "get the ip from map"
+  [item]
+  (get item :ip))
 
 (defn read-detail
   "read in a large detail file"
@@ -95,8 +89,11 @@
           wireless (second file-names)
           detail (nth file-names 2)
           wired-list (create-final-list (map create-data-map (read-csv wired)))
-          wireless-list (create-final-list (map create-data-map (read-csv wireless)))]
+          wireless-list (create-final-list (map create-data-map (read-csv wireless)))
+          wired-ip-list (map get-ip wired-list)
+          compare-list (compare-ip wired-ip-list)]
+      (println wired-ip-list)
       (println "=============== Wired List: ===============")
-      (pp/pprint wired-list)
-      (println "\n=============== Wireless List: ===============")
-      (pp/pprint wireless-list)))
+      (pp/pprint compare-list)))
+      ;; (println "\n=============== Wireless List: ===============")
+      ;; (pp/pprint wireless-list)))
