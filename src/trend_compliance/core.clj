@@ -41,16 +41,6 @@
   [user-map]
   (swap! log-map assoc (keyword (get user-map :Framed-IP-Address)) user-map))
 
-;; (defn compare-ip
-;;   "compare the ip held in log to the ips on compliance list"
-;;   [ip-list]
-;;   (first (filter #(= % (get @state :Framed-IP-Address)) ip-list)))
-
-(defn get-ip
-  "get the ip from map"
-  [item]
-  (get item :ip))
-
 (def user-map (atom {}))
 
 (defn create-user-map
@@ -82,7 +72,7 @@
   (with-open [rdr (io/reader file-name)]
     (let [line (line-seq rdr)]
       (doall (map parse-line (doall (map split-line line))))
-    (doall (create-log-map @user-map)))))
+      (create-log-map @user-map))))
 
 (defn read-csv
   "read in a csv file"
