@@ -34,36 +34,55 @@
   [item]
   (filter (every-pred windows? ping-successful? trend-installed?) item))
 
-(def user-map (atom {}))
+(def log-map (atom {}))
 
-(defn line-to-map
+(defn create-log-map
   "take a line from detail and put into map using an atom"
-  [line]
-  ;; (reset! state {})
-  (if (= (str (first line)) (re-find #"\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first line))))
-    (swap! state assoc :date (str (first line)))
-    (swap! state assoc
-      (keyword (re-find #"(?x)\S+" (str (first line))))
-      (re-find #"[^\\\"]+" (str (second line))))))
+  [user-map]
+  (swap! log-map assoc (keyword (get user-map :Framed-IP-Address)) user-map))
 
 ;; (defn compare-ip
 ;;   "compare the ip held in log to the ips on compliance list"
 ;;   [ip-list]
 ;;   (first (filter #(= % (get @state :Framed-IP-Address)) ip-list)))
 
-;; (defn get-ip
-;;   "get the ip from map"
-;;   [item]
-;;   (get item :ip))
+(defn get-ip
+  "get the ip from map"
+  [item]
+  (get item :ip))
+
+(def user-map (atom {}))
+
+(defn create-user-map
+  "take a line from detail and put into map using an atom"
+  [line]
+  (if (= (str (first line)) (re-find #"\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first line))))
+    (swap! user-map assoc :date (str (first line)))
+    (swap! user-map assoc
+      (keyword (re-find #"(?x)\S+" (str (first line))))
+      (re-find #"[^\\\"]+" (str (second line))))))
+
+(defn parse-line
+  "only keep important lines"
+  [line]
+  (cond
+    (re-matches #"(?i)\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first line)))(create-user-map line)
+    (re-matches #"(?i)(.*)Acct-Session-Id" (str (first line)))(create-user-map line)
+    (re-matches #"(?i)(.*)Framed-IP-Address" (str (first line)))(create-user-map line)
+    (re-matches #"(?i)(.*)User-Name" (str (first line)))(create-user-map line)))
+
+(defn split-line
+  "parse each line of a large file"
+  [line]
+  (str/split line #" = "))
 
 (defn read-large-file
   "read in a large detail file"
-  [file-name ip-list]
+  [file-name]
   (with-open [rdr (io/reader file-name)]
-    (doseq [line (line-seq rdr)]
-      (if (empty? line)
-        (compare-ip ip-list)
-        (line-to-map (str/split line #" = "))))))
+    (let [line (line-seq rdr)]
+      (doall (map parse-line (doall (map split-line line))))
+    (doall (create-log-map @user-map)))))
 
 (defn read-csv
   "read in a csv file"
@@ -82,11 +101,5 @@
           detail (nth file-names 2)
           wired-ip-list (set (map get-ip (uncompliant-map (map create-map (read-csv wired)))))
           wireless-ip-list (set (map get-ip (uncompliant-map (map create-map (read-csv wireless)))))]
-          ;; wireless-ip-list (map get-ip wireless-list)
-          ;; matching-ip (read-large-file detail wireless-ip-list)]
-      ;; (println matching-ip)))
-      ;; (println wireless-ip-list)))
       (println "=============== Wired List: ===============")
-      (println wired-ip-list)
-      (println "\n=============== Wireless List: ===============")
-      (println wireless-ip-list)))
+      (println wired-ip-list)))
