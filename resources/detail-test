@@ -1,0 +1,61 @@
+Mon Dec 14 00:00:00 2015
+	User-Name = "mansond"
+	NAS-Port = 13
+	NAS-IP-Address = 141.195.17.1
+	Framed-IP-Address = 141.195.68.57
+	Framed-IPv6-Prefix = fe80::/64
+	NAS-Identifier = "WISM2-A-17.1"
+	Airespace-Wlan-Id = 1
+	Acct-Session-Id = "566e4b8f/60:69:44:08:0a:a5/7660491"
+	NAS-Port-Type = Wireless-802.11
+	Cisco-AVPair = "audit-session-id=8dc311010079dd3c566e4b8e"
+	Acct-Authentic = RADIUS
+	Tunnel-Type:0 = VLAN
+	Tunnel-Medium-Type:0 = IEEE-802
+	Tunnel-Private-Group-Id:0 = "68"
+	Event-Timestamp = "Dec 13 2015 23:59:58 EST"
+	Acct-Status-Type = Stop
+	Acct-Input-Octets = 11247
+	Acct-Input-Gigawords = 0
+	Acct-Output-Octets = 19088
+	Acct-Output-Gigawords = 0
+	Acct-Input-Packets = 84
+	Acct-Output-Packets = 62
+	Acct-Terminate-Cause = Idle-Timeout
+	Acct-Session-Time = 320
+	Acct-Delay-Time = 0
+	Calling-Station-Id = "141.195.68.57"
+	Called-Station-Id = "141.195.17.1"
+	Acct-Unique-Session-Id = "95f9083d7ac3a5a6"
+	Timestamp = 1450069200
+
+Mon Dec 14 00:00:00 2015
+	User-Name = "akramt"
+	NAS-Port = 13
+	NAS-IP-Address = 141.195.17.1
+	Framed-IP-Address = 141.195.71.53
+	Framed-IPv6-Prefix = fe80::/64
+	NAS-Identifier = "WISM2-A-17.1"
+	Airespace-Wlan-Id = 1
+	Acct-Session-Id = "566e4cc9/e4:98:d6:18:69:c5/7660690"
+	NAS-Port-Type = Wireless-802.11
+	Cisco-AVPair = "audit-session-id=8dc311010079ddfa566e4cc9"
+	Acct-Authentic = RADIUS
+	Tunnel-Type:0 = VLAN
+	Tunnel-Medium-Type:0 = IEEE-802
+	Tunnel-Private-Group-Id:0 = "71"
+	Event-Timestamp = "Dec 13 2015 23:59:58 EST"
+	Acct-Status-Type = Interim-Update
+	Acct-Input-Octets = 0
+	Acct-Input-Gigawords = 0
+	Acct-Output-Octets = 0
+	Acct-Output-Gigawords = 0
+	Acct-Input-Packets = 0
+	Acct-Output-Packets = 0
+	Acct-Session-Time = 5
+	Acct-Delay-Time = 0
+	Calling-Station-Id = "141.195.71.53"
+	Called-Station-Id = "141.195.17.1"
+	Acct-Unique-Session-Id = "b9d08bdf82ad109c"
+	Timestamp = 1450069200
+
