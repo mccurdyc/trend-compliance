@@ -77,6 +77,11 @@
   (with-open [rdr (io/reader file-name)]
     (doall (csv/parse-csv rdr))))
 
+(defn get-ip
+"get the ip from map"
+[item]
+(get item :ip))
+
 (defn -main
   "do some fun stuff with csv files"
   [& args]
