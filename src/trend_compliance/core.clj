@@ -40,39 +40,36 @@
 (defn create-log-map
   "take a line from detail and put into map using an atom"
   [user-map]
-  (swap! log-map assoc (keyword (get user-map :Framed-IP-Address)) user-map))
+  (swap! log-map assoc :ip (get user-map :ip))
+  (swap! log-map assoc :user-name (get user-map :user-name))
+  (swap! log-map assoc :mac-ad (get user-map :mac-ad))
+  (swap! log-map assoc :date (get user-map :date)))
 
 (defn create-user-map
-  "take a line from detail and put into map using an atom"
-  [line]
-  (when (= (count (keys @user-map)) 4)
-    (create-log-map @user-map))
-  (if (= (str (first line)) (re-find #"\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first line))))
-    (swap! user-map assoc :date (str (first line)))
-    (swap! user-map assoc
-      (keyword (re-find #"(?x)\S+" (str (first line))))
-      (re-find #"[^\\\"]+" (str (second line))))))
-
-(defn parse-line
-  "only keep important lines"
-  [line]
-  (cond
-    (re-matches #"(?i)\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first line)))(create-user-map line)
-    (re-matches #"(?i)(.*)Acct-Session-Id" (str (first line)))(create-user-map line)
-    (re-matches #"(?i)(.*)Framed-IP-Address" (str (first line)))(create-user-map line)
-    (re-matches #"(?i)(.*)User-Name" (str (first line)))(create-user-map line)))
-
-(defn split-line
   "parse each line of a large file"
   [line]
-  (str/split line #" = "))
+  (let [l (str/split line #" = ")]
+  (cond
+    (re-matches #"(?i)\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first l)))
+      (swap! user-map assoc :date (str (first l)))
+    (re-matches #"(?i)(.*)Acct-Session-Id" (str (first l)))
+      (swap! user-map assoc :Acct-Session-Id (re-find #"[^\\\"]+" (str (second l))))
+    (re-matches #"(?i)(.*)Framed-IP-Address" (str (first l)))
+      (swap! user-map assoc :Framed-IP-Address (re-find #"[^\\\"]+" (str (second l))))
+    (re-matches #"(?i)(.*)User-Name" (str (first l)))
+      (swap! user-map assoc :User-Name (re-find #"[^\\\"]+" (str (second l)))))))
 
 (defn read-large-file
   "read in a large detail file"
   [file-name]
   (with-open [rdr (io/reader file-name)]
-    (let [line (line-seq rdr)]
-      (doall (map parse-line (doall (map split-line line)))))))
+    (let [line (line-seq rdr)
+          pop-user-map (doall (map create-user-map line))
+          user-map {:ip (get @user-map :Framed-IP-Address)
+                    :user-name (get @user-map :User-Name)
+                    :mac-ad (get @user-map :Acct-Session-Id)
+                    :date (get @user-map :date)}]
+    (create-log-map user-map))))
 
 (defn read-csv
   "read in a csv file"
