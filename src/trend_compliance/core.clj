@@ -35,17 +35,18 @@
   (filter (every-pred windows? ping-successful? trend-installed?) item))
 
 (def log-map (atom {}))
+(def user-map (atom {}))
 
 (defn create-log-map
   "take a line from detail and put into map using an atom"
   [user-map]
   (swap! log-map assoc (keyword (get user-map :Framed-IP-Address)) user-map))
 
-(def user-map (atom {}))
-
 (defn create-user-map
   "take a line from detail and put into map using an atom"
   [line]
+  (when (= (count (keys @user-map)) 4)
+    (create-log-map @user-map))
   (if (= (str (first line)) (re-find #"\w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}" (str (first line))))
     (swap! user-map assoc :date (str (first line)))
     (swap! user-map assoc
@@ -71,8 +72,7 @@
   [file-name]
   (with-open [rdr (io/reader file-name)]
     (let [line (line-seq rdr)]
-      (doall (map parse-line (doall (map split-line line))))
-      (create-log-map @user-map))))
+      (doall (map parse-line (doall (map split-line line)))))))
 
 (defn read-csv
   "read in a csv file"
