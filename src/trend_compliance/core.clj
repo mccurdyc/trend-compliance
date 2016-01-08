@@ -40,10 +40,11 @@
 (defn create-log-map
   "take a line from detail and put into map using an atom"
   [user-map]
-  (swap! log-map assoc :ip (get user-map :ip))
-  (swap! log-map assoc :user-name (get user-map :user-name))
-  (swap! log-map assoc :mac-ad (get user-map :mac-ad))
-  (swap! log-map assoc :date (get user-map :date)))
+  (swap! log-map assoc (keyword (get user-map :ip)) user-map))
+  ;; (swap! log-map assoc :ip (get user-map :ip))
+  ;; (swap! log-map assoc :user-name (get user-map :user-name))
+  ;; (swap! log-map assoc :mac-ad (get user-map :mac-ad))
+  ;; (swap! log-map assoc :date (get user-map :date)))
 
 (defn create-user-map
   "parse each line of a large file"
@@ -64,12 +65,13 @@
   [file-name]
   (with-open [rdr (io/reader file-name)]
     (let [line (line-seq rdr)
-          pop-user-map (doall (map create-user-map line))
+          _ (doall (map create-user-map line))
           user-map {:ip (get @user-map :Framed-IP-Address)
                     :user-name (get @user-map :User-Name)
                     :mac-ad (get @user-map :Acct-Session-Id)
                     :date (get @user-map :date)}]
-    (create-log-map user-map))))
+    (when (= (count (keys user-map)) 4)
+    (create-log-map user-map)))))
 
 (defn read-csv
   "read in a csv file"
