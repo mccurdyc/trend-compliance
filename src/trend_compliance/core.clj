@@ -78,7 +78,7 @@
 (defn check-time-range [item]
   (let [date (:date (second item))
         parse-date (f/parse (f/formatter "EEE MMM dd HH:mm:ss yyyy") date)]
-    (if (and (>= (t/hour parse-date) 20) (<= (t/hour parse-date) 22)) item "deny")))
+    (if (and (>= (t/hour parse-date) 20) (<= (t/hour parse-date) 22)) item "not between 20:00 - 22:00.")))
 
 (defn -main [& args]
   (println "Files (<path/to/WIRED.csv> <path/to/WIRELSS.csv> <path/to/DETAIL>): ")
