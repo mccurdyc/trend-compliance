@@ -1,36 +1,70 @@
 # trend-compliance
-
-FIXME: description
+Tool for working with parsing trend anti-virus compliance list. Finds IP
+addresses that are not registered with the campus-required anti-virus.
+After grabbing their IP, searches for their IP in a detailed log file
+and gets the user's MAC address.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+### Clone
+The easiest way is to clone this repository with the following command.
+
+```
+git clone https://github.com/mccurdyc/trend-compliance.git
+```
+
+Don't have Git? Just download the `.zip` file. You can do this by
+visiting the follow URL.
+
+```
+https://codeload.github.com/mccurdyc/trend-compliance/zip/master
+```
 
 ## Usage
+First, change the filename of the wired, wireless, and detailed files to
+something without spaces in the filename.
 
-FIXME: explanation
+Then, you can just drag the files into the Terminal when prompted for
+the files.
 
-    $ java -jar trend-compliance-0.1.0-standalone.jar [args]
+*Note: The files still need to be in a certain order!*
 
-## Options
+```
+./tc.sh
+```
 
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+Then, you will need to follow the on-screen instructions.
 
 ## License
 
-Copyright © 2015 FIXME
+The MIT License (MIT)
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Copyright (c) [year] [fullname]
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy
+of this software and associated documentation files (the "Software"), to
+deal
+in the Software without restriction, including without limitation the
+rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE
+SOFTWARE.
+
