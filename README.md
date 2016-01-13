@@ -29,8 +29,17 @@ the files.
 
 *Note: The files still need to be in a certain order!*
 
+*Note: If you are on Windows, the following command will not work unless
+you have `bash` installed.*
+
 ```
 ./tc.sh
+```
+
+#### Use this command on Windows
+
+```
+java -jar target/uberjar/trend-compliance-0.1.0-SNAPSHOT-standalone.jar
 ```
 
 Then, you will need to follow the on-screen instructions.
